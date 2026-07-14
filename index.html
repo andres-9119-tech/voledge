@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081a33">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css">
+<title>VolEdge</title>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="logo">VE</div><div><small>EVENT-DRIVEN OPTIONS INTELLIGENCE</small><h1>VolEdge</h1></div></div>
+  <div class="actions">
+    <button id="installBtn" hidden>Instalar</button>
+    <button id="exportBtn">Exportar</button>
+    <label>Importar<input id="importInput" type="file" accept=".json" hidden></label>
+    <button class="primary" id="newBtn">Nueva operación</button>
+  </div>
+</header>
+
+<nav class="mobile-nav">
+  <button class="active" data-view="dashboard">Dashboard</button>
+  <button data-view="calendar">Calendario</button>
+  <button data-view="journal">Diario</button>
+  <button data-view="settings">Ajustes</button>
+</nav>
+
+<main>
+<section id="dashboardView" class="view active">
+  <div class="hero">
+    <article class="card intro">
+      <div><small>TERMINAL PERSONAL</small><h2>Prioriza las mejores oportunidades Mover–Moocher</h2>
+      <p>Score automático basado en calendario, vencimiento, IV, VI/Vol. Hist., correlación, reacción histórica y spread.</p></div>
+      <div id="heroScore" class="hero-score">—</div>
+    </article>
+    <article class="card kpis">
+      <div><span>Analizadas</span><strong id="kpiTotal">0</strong></div>
+      <div><span>Excelentes</span><strong id="kpiExcellent">0</strong></div>
+      <div><span>Abiertas</span><strong id="kpiOpen">0</strong></div>
+      <div><span>P&L realizado</span><strong id="kpiPnl">$0</strong></div>
+    </article>
+  </div>
+
+  <article class="card filters">
+    <input id="searchInput" type="search" placeholder="Buscar ticker, mover, sector…">
+    <select id="statusFilter"><option value="">Todos los estados</option><option>Vigilar</option><option>Preparada</option><option>Abierta</option><option>Cerrada</option><option>Descartada</option></select>
+    <select id="classFilter"><option value="">Todas las clases</option><option>Excelente</option><option>Buena</option><option>Regular</option><option>Descartar</option></select>
+    <select id="sortSelect"><option value="score-desc">Score ↓</option><option value="moverDate-asc">Mover más próximo</option><option value="exitDate-asc">Salida más próxima</option><option value="ivhv-asc">VI/HV menor</option><option value="spread-asc">Spread menor</option></select>
+  </article>
+
+  <div class="section-head"><div><small>RANKING</small><h2>Oportunidades</h2></div><span id="resultsCount">0 resultados</span></div>
+  <div id="opportunityGrid" class="grid"></div>
+  <article id="detailPanel" class="card detail hidden">
+    <div class="section-head"><h2 id="detailTitle">Detalle</h2><div><button id="editBtn">Editar</button><button id="deleteBtn" class="danger">Eliminar</button></div></div>
+    <div id="detailContent"></div>
+  </article>
+</section>
+
+<section id="calendarView" class="view">
+  <div class="section-head"><div><small>CALENDARIO</small><h2>Próximos eventos</h2></div></div>
+  <div id="calendarList" class="calendar"></div>
+</section>
+
+<section id="journalView" class="view">
+  <div class="section-head"><div><small>DIARIO</small><h2>Historial de operaciones</h2></div></div>
+  <article class="card table-wrap"><table><thead><tr><th>Par</th><th>Estado</th><th>Entrada</th><th>Salida</th><th>P&L</th><th>Score</th></tr></thead><tbody id="journalBody"></tbody></table></article>
+</section>
+
+<section id="settingsView" class="view">
+  <div class="section-head"><div><small>AJUSTES</small><h2>Metodología</h2></div></div>
+  <div class="settings-grid">
+    <article class="card"><h3>Score /100</h3><ul><li>Calendario 20</li><li>Vencimiento 10</li><li>IV 10</li><li>VI/Vol. Hist. 10</li><li>Correlación 20</li><li>Reacción histórica 10</li><li>Liquidez / spread 20</li></ul></article>
+    <article class="card"><h3>VI/Vol. Hist.</h3><p>&lt;90%: barata · 90–110%: razonable · 110–125%: algo cara · 125–150%: cara · &gt;150%: muy cara.</p></article>
+    <article class="card"><h3>Reglas</h3><ul><li>Comprar Call + Put ATM.</li><li>Usar orden limitada.</li><li>Salir antes del Moocher.</li><li>Elegir vencimiento posterior al Moocher.</li></ul></article>
+  </div>
+</section>
+</main>
+
+<dialog id="operationDialog">
+<form id="operationForm">
+<div class="dialog-head"><div><small>REGISTRO</small><h2 id="dialogTitle">Nueva operación</h2></div><button type="button" id="closeDialog">×</button></div>
+<input type="hidden" id="recordId">
+<div class="form-grid">
+<fieldset><legend>Par y calendario</legend>
+<label>Moocher<input id="moocher" required></label><label>Ticker Moocher<input id="moocherTicker" required></label>
+<label>Mover<input id="mover" required></label><label>Ticker Mover<input id="moverTicker" required></label>
+<label>Sector<input id="sector"></label><label>Resultados Mover<input id="moverDate" type="date" required></label>
+<label>Resultados Moocher<input id="moocherDate" type="date" required></label><label>Salida máxima<input id="exitDate" type="date" required></label>
+</fieldset>
+<fieldset><legend>Cadena de opciones</legend>
+<label>Precio Moocher ($)<input id="underlyingPrice" type="number" step="0.01" required></label><label>Vencimiento<input id="expiryDate" type="date" required></label>
+<label>Strike ATM ($)<input id="strike" type="number" step="0.01" required></label><label>Call bid<input id="callBid" type="number" step="0.01" required></label>
+<label>Call ask<input id="callAsk" type="number" step="0.01" required></label><label>Put bid<input id="putBid" type="number" step="0.01" required></label>
+<label>Put ask<input id="putAsk" type="number" step="0.01" required></label><label>IV actual (%)<input id="iv" type="number" step="0.1" required></label>
+<label>VI/Vol. Hist. (%)<input id="ivhv" type="number" step="0.1" required></label>
+</fieldset>
+<fieldset><legend>Calidad y seguimiento</legend>
+<label>Correlación histórica (0–1)<input id="correlation" type="number" min="0" max="1" step="0.01" required></label>
+<label>Reacción histórica (1–5)<input id="reaction" type="number" min="1" max="5" required></label>
+<label>Estado<select id="status"><option>Vigilar</option><option>Preparada</option><option>Abierta</option><option>Cerrada</option><option>Descartada</option></select></label>
+<label>Entrada straddle ($)<input id="entryPrice" type="number" step="0.01"></label><label>Salida straddle ($)<input id="exitPrice" type="number" step="0.01"></label>
+<label>Contratos<input id="contracts" type="number" min="1" value="1"></label><label>Notas<textarea id="notes" rows="5"></textarea></label>
+<label>Captura IBKR<input id="screenshot" type="file" accept="image/*"></label><img id="screenshotPreview" class="preview hidden">
+</fieldset></div>
+<div class="dialog-footer"><strong id="liveScore">Score estimado: —</strong><div><button type="button" id="cancelBtn">Cancelar</button><button class="primary" type="submit">Guardar</button></div></div>
+</form>
+</dialog>
+<script src="app.js"></script>
+</body></html>
